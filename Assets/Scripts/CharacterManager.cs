@@ -20,7 +20,7 @@ public class CharacterManager : MonoBehaviour
     CharacterHealth characterHealth;
     CharacterInterface characterInterface;
     bool isInStoppingAnimation = false;
-    float invincibilityTime = 1f;
+    float invincibilityTime = 0.3f;
     bool isInvincible = false;
     private void Awake()
     {

@@ -51,7 +51,7 @@ public class CharacterAttack : MonoBehaviour
 
         foreach (Collider2D collision in overlapping)
         {
-            if (collision.name == "HitBox")
+            if (collision.CompareTag("HitBox"))
             {
                 GameObject enemy = collision.transform.parent.gameObject;
                 DealDamage(enemy.GetComponent<CharacterManager>());

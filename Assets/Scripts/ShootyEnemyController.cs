@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,6 +16,12 @@ public class ShootyEnemyController : MonoBehaviour ,CharacterInterface
     public float idleDistance = 0.001f;
     public float scoreValue = 20f;
     private bool isPatrollingToEnd;
+    private float delayBeforeShot = 2f;
+    private float delayBetweenDoubleShot = 0.5f;
+    private float delayAfterDoubleShot = 1f;
+    private bool isInStoppingAction = false;
+    public GameObject bulletPrefab;
+    public GameObject bulletSpawn;
     HUD hud;
     GameObject player;
     CharacterManager characterManager;
@@ -57,7 +64,10 @@ public class ShootyEnemyController : MonoBehaviour ,CharacterInterface
             }
         }
 
-        Act();
+        if (!isInStoppingAction)
+        {
+            Act();
+        }
     }
 
     public void Die()
@@ -106,7 +116,10 @@ public class ShootyEnemyController : MonoBehaviour ,CharacterInterface
         switch (enemyState)
         {
             case ShootyEnemyState.FirstShot:
-                characterManager.Attack(CharacterState.Punch);
+                StartCoroutine(FirstShot());
+                break;
+            case ShootyEnemyState.DoubleShot:
+                StartCoroutine(DoubleShot());
                 break;
             case ShootyEnemyState.Patrol:
                 Vector3 patrolPosition = isPatrollingToEnd ? patrolEnd : patrolStart;
@@ -123,17 +136,12 @@ public class ShootyEnemyController : MonoBehaviour ,CharacterInterface
         if (Vector3.Distance(enemyPosition, patrolStart) < idleDistance)
         {
             transform.position = patrolStart;
-            ReturnToIdle();
+            characterManager.ReturnToIdle();
+            enemyState = ShootyEnemyState.Patrol;
         } else
         {
             characterManager.walk(patrolStart - enemyPosition);
         }
-    }
-
-    void ReturnToIdle()
-    {
-        characterManager.ReturnToIdle();
-        enemyState = ShootyEnemyState.Patrol;
     }
 
     public void GetKill(CharacterInterface character)
@@ -155,15 +163,58 @@ public class ShootyEnemyController : MonoBehaviour ,CharacterInterface
     {
         if (isPatrollingToEnd)
         {
-            if (Vector3.Distance(enemyPosition, patrolStart) < idleDistance)
+            if (Vector3.Distance(enemyPosition, patrolEnd) < idleDistance)
             {
                 return true;
             }
-        } else if (Vector3.Distance(enemyPosition, patrolEnd) < idleDistance)
+        } else if (Vector3.Distance(enemyPosition, patrolStart) < idleDistance)
         {
             return true;
         }
         
         return false;
+    }
+
+    private IEnumerator FirstShot()
+    {
+        isInStoppingAction = true;
+        characterManager.ReturnToIdle();
+        yield return new WaitForSeconds(delayBeforeShot);
+        if (DetectPlayer())
+        {
+            characterManager.Turn(IsPlayerToTheRight());
+            characterManager.Attack(CharacterState.Punch);
+            enemyState = ShootyEnemyState.DoubleShot;
+        } else
+        {
+            enemyState = ShootyEnemyState.ReturnToPatrol;
+        }
+
+            isInStoppingAction = false;
+    }
+
+    private IEnumerator DoubleShot()
+    {
+        isInStoppingAction = true;
+        yield return new WaitForSeconds(delayBeforeShot);
+        if (DetectPlayer())
+        {
+            characterManager.Turn(IsPlayerToTheRight());
+            characterManager.Attack(CharacterState.Punch);
+            yield return new WaitForSeconds(delayBetweenDoubleShot);
+            characterManager.Attack(CharacterState.Punch);
+            yield return new WaitForSeconds(delayAfterDoubleShot);
+        }
+
+        enemyState = ShootyEnemyState.ReturnToPatrol;
+        isInStoppingAction = false;
+    }
+
+    public void FireBullet()
+    {
+        Vector3 isRight = Vector3.forward * (characterManager.IsTurnedRight() ? 1 : -1);
+        Quaternion bulletRotation = Quaternion.LookRotation(isRight);
+        GameObject bullet = Instantiate(bulletPrefab, bulletSpawn.transform.position, bulletRotation);
+        bullet.GetComponent<Bullet>().creator = this;
     }
 }

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8227107983589177760}
   m_Layer: 0
   m_Name: HitBox
-  m_TagString: Untagged
+  m_TagString: HitBox
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -330,6 +330,7 @@ MonoBehaviour:
   detectionArea: {fileID: 2599060437650586160}
   attackDistance: 0.5
   idleDistance: 0.001
+  scoreValue: 10
 --- !u!50 &3310552655472224388
 Rigidbody2D:
   serializedVersion: 5
