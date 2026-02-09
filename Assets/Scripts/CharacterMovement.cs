@@ -52,4 +52,19 @@ public class CharacterMovement : MonoBehaviour
                 originalScale.z);
         }
     }
+
+    public bool IsTurnedRight()
+    {
+        return transform.localScale.x > 0;
+    }
+
+    public void Turn(bool turnRight)
+    {
+        Vector3 turned = transform.localScale;
+        if (turnRight != IsTurnedRight())
+        {
+            turned.x *= -1;
+            transform.localScale = turned;
+        }
+    }
 }

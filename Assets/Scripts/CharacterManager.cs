@@ -91,10 +91,12 @@ public class CharacterManager : MonoBehaviour
         {
             return;
         }
+        
 
         StartCoroutine(invincibilityRoutine());
         float healthPercentage = characterHealth.TakeDamage(damage);
         characterInterface.UpdateHealth(healthPercentage);
+
         if (healthPercentage <= 0)
         {
             attacker.GetKill(characterInterface);
@@ -121,5 +123,15 @@ public class CharacterManager : MonoBehaviour
         yield return new WaitForSeconds(invincibilityTime);
         
         isInvincible = false;
+    }
+
+    public bool IsTurnedRight()
+    {
+        return characterMovement.IsTurnedRight();
+    }
+
+    public void Turn(bool turnRight)
+    {
+        characterMovement.Turn(turnRight);
     }
 }

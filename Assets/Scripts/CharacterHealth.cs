@@ -13,7 +13,6 @@ public class CharacterHealth : MonoBehaviour
     public float TakeDamage(float damage)
     {
         health = Mathf.Clamp(health - damage, 0, maxHealth);
-
         return HealthPercentage();
     }
 
